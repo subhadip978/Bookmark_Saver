@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	
+	<form onsubmit="handleFormSubmit(event)" id="details">
+
+
+		<label for="name">NAME: </label>
+	<input type="text" name="name" id="name">
+
+		<label for="url">URL: </label>
+	<input type="text" name="url" id="url">
+
+	<button type="submit">ADD</button>
+
+</form>
+
+<ul id="userlist"></ul>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+<script>
+
+	function handleFormSubmit(event){
+		event.preventDefault();
+		const name=event.target.name.value;
+		const url=event.target.url.value;
+
+
+		const obj={
+			name,
+			url
+		}
+
+		//localStorage.setItem(obj.name,JSON.stringify(obj));
+
+		axios.post("https://crudcrud.com/api/654a93c24e7e418aac664e0d844581a7/bookmarked",obj)
+		.then((res)=>{
+			console.log(res.data);
+
+			displayuser(res.data)
+		})
+		.catch((err)=>{
+			console.log(err)
+		})
+	}
+
+	window.addEventListener("DOMContentLoaded",()=>{
+
+		axios.get("https://crudcrud.com/api/654a93c24e7e418aac664e0d844581a7/bookmarked")
+		.then((res)=>{
+		res.data.forEach((item)=>{
+			console.log(item);
+			displayuser(item)
+		})
+		})
+		.catch((err)=>{
+			console.log(err)
+		})
+	})
+
+function displayuser(user) {
+
+	// const childNode=`<li id=${user._id}> ${user.name}  <a href=${user.url}> ${user.url}</a>  
+	// 				<button onclick=deleteUser('${user._id}')>DELETE </button>
+	// 				<button onclick=editbtn('${user._id}','${user.name}','${user.url}')>EDIT </button> 
+	// 				</li>`;
+    const parentNode = document.getElementById("userlist");
+
+    const liElement = document.createElement('li');
+    liElement.id = user._id;
+	
+	const nameElement = document.createElement('span');
+    nameElement.textContent = user.name;
+	liElement.appendChild(nameElement);
+
+	const linkElement = document.createElement('a');
+    linkElement.href = user.url;
+    linkElement.textContent = user.url;
+	liElement.appendChild(linkElement);
+
+
+	//delete button
+	const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'DELETE';
+	
+    deleteButton.onclick = function () {
+    deleteUser(user._id);
+	}
+	liElement.appendChild(deleteButton);
+
+
+
+	//edit button
+	const editButton = document.createElement('button');
+    editButton.textContent = 'EDIT';
+    editButton.onclick = function () {
+        editbtn( user.name, user.url);
+    };
+	liElement.appendChild(editButton);
+	parentNode.appendChild(liElement);
+
+
+
+
+
+	function deleteUser(userId){
+		axios.delete(`https://crudcrud.com/api/654a93c24e7e418aac664e0d844581a7/bookmarked/${userId}`)
+		.then((res)=>{
+		parentNode.removeChild(liElement);
+	})
+	.catch((err)=>{
+		console.log(err)
+	})
+    };
+		//localStorage.removeItem(userId);
+		//parentNode.removeChild(liElement);
+	
+
+	function editbtn(username,url){
+		document.getElementById("name").value=username;
+		document.getElementById("url").value=url;
+
+		deleteUser(user._id);
+	}
+}
+</script>
+</html>
